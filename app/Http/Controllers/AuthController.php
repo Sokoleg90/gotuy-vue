@@ -9,31 +9,6 @@ use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
-    {
-        $data = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email|string|unique:users,email',
-            'password' => [
-                'required',
-                'confirmed',
-                Password::min(8)->mixedCase()->numbers()
-            ]
-        ]);
-
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password'])
-        ]);
-
-        $token = $user->createToken('main')->plainTextToken;
-
-        return response([
-            'user' => $user,
-            'token' => $token
-        ]);
-    }
 
     public function login(Request $request)
     {
@@ -48,14 +23,20 @@ class AuthController extends Controller
         unset($credentials['remember']);
         if (!Auth::attempt($credentials, $remember)) {
             return response([
-                'error' => 'The Provided credentials are not correct'
+                'error' => 'Вы ввели некорректные данные'
             ], 422);
         }
         $user = Auth::user();
+        if (!$user->is_admin) {
+            Auth::logout();
+            return response([
+                'error' => 'Вы не являетесь администратором и не можете войти в админ парень'
+            ], 403);
+    }
         $token = $user->createToken('main')->plainTextToken;
 
         return response([
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $token
         ]);
     }
@@ -68,8 +49,11 @@ class AuthController extends Controller
         //Revoke the token that has used to authenticate the current request
         $user->currentAccessToken()->delete();
 
-        return response([
-            'success' => true
-        ]);
+        return response('', 204);
+    }
+
+    public function getUser(Request $request) {
+        return new UserResource($request->user());
     }
 }
+

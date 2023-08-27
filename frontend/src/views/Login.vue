@@ -1,8 +1,6 @@
 <template>
     <div class="bg-gray-200 w-100%">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-        <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-             alt="Your Company"/>
         <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Войти</h2>
     </div>
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
@@ -54,19 +52,11 @@
             </div>
             <div>
                 <button type="submit"
-                        class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        class="flex w-full justify-center rounded-md bg-teal-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-teal-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600">
                     Войти
                 </button>
             </div>
         </form>
-
-        <p class="mt-10 text-center text-sm text-gray-500">
-            Нет аккаунта?
-            {{ ' ' }}
-            <router-link :to="{name: 'Register'}" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
-                Зарегистрировать!
-            </router-link>
-        </p>
     </div>
     </div>
 </template>
@@ -77,23 +67,28 @@ import {useRouter} from "vue-router";
 import {ref} from "vue";
 
 const router = useRouter();
+
+let loading = ref(false);
+let errorMsg = ref('');
+
 const user = {
     email: '',
     password: '',
     remember: false
-}
-let errorMsg = ref('')
+};
 
-function login(ev) {
-    ev.preventDefault();
+function login() {
+    loading.value = true;
     store.dispatch('login', user)
         .then(() => {
+            loading.value = false;
             router.push({
                 name: 'Dashboard'
             })
         })
-        .catch(err => {
-            errorMsg.value = err.response.data.error
+        .catch(({response}) => {
+            loading.value = false;
+            errorMsg.value = response.data.message;
         })
 }
 </script>
