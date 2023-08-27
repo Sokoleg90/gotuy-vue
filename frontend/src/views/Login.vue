@@ -4,7 +4,7 @@
         <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Войти</h2>
     </div>
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form class="space-y-6" @submit="login">
+        <form class="space-y-6" method="POST" @submit.prevent="login">
             <div v-if="errorMsg" class="flex items-center justify-between py-3 px-5 bg-red-500 text-white rounded">
                 {{ errorMsg }}
                 <span @click="errorMsg = ''" class="w-8 h-8 flex items-center justify-center rounded-full transition-colors cursor-pointer hover:bg-red-800">
